@@ -2,19 +2,40 @@ package com.agipet;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.Skill;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.StatChanged;
+import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.xptracker.XpTrackerPlugin;
+import net.runelite.client.plugins.xptracker.XpTrackerService;
+import net.runelite.client.ui.ClientToolbar;
+import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.util.ImageUtil;
+
+import java.awt.image.BufferedImage;
+import java.util.Arrays;
+
+import static net.runelite.api.Skill.AGILITY;
+@PluginDependency(XpTrackerPlugin.class)
 
 @Slf4j
 @PluginDescriptor(
-	name = "Example"
+	name = "Agility Pet",
+    description = "Adds a game sidebar to make agility training more interesting",
+    tags = {"agility", "pet"}
 )
 public class AgiPetPlugin extends Plugin
 {
@@ -24,26 +45,105 @@ public class AgiPetPlugin extends Plugin
 	@Inject
 	private AgiPetConfig config;
 
+    @Inject
+    private Notifier notifier;
+
+    @Getter
+    private int agilityLevel;
+
+    @Getter
+    private int agilityXp;
+
+    private int lastAgilityXp;
+
+    @Inject
+    private XpTrackerService xpTrackerService;
+
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    private AgiPetTracker tracker;
+
+    @Inject
+    private ClientToolbar clientToolbar;
+
+    private AgiPetPanel panel;
+    private NavigationButton navButton;
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.info("Example started!");
+        // TODO Read write from file
+        // README https://github.com/Mrnice98/BossingInfo/blob/master/src/main/java/com/killsperhour/FileReadWriter.java
+		agilityLevel = client.getRealSkillLevel(Skill.AGILITY);
+        agilityXp = client.getSkillExperience(Skill.AGILITY);
+        tracker = new AgiPetTracker();
+        tracker.setStartXp(agilityXp);
+
+        // Add panel to window
+        panel = injector.getInstance(AgiPetPanel.class);
+        panel.init();
+
+        final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.jpg");
+
+        navButton = NavigationButton.builder()
+                .tooltip("Agility Pet")
+                .icon(icon)
+                .priority(100)
+                .panel(panel)
+                .build();
+
+        clientToolbar.addNavigation(navButton);
+
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
-		log.info("Example stopped!");
+        /* ; */
 	}
 
-	@Subscribe
+	/*@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
 		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
 		{
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
+			//client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
 		}
-	}
+	}*/
+
+    @Subscribe
+    public void onStatChanged(StatChanged statChanged)
+    {
+        if (statChanged.getSkill() != AGILITY)
+        {
+            return;
+        }
+
+        agilityLevel = statChanged.getLevel();
+
+        // Determine how much EXP was actually gained
+        int agilityXp = statChanged.getXp();
+        int skillGained = agilityXp - lastAgilityXp;
+        lastAgilityXp = agilityXp;
+
+        log.debug("Gained {} xp at {}", skillGained, client.getLocalPlayer().getWorldLocation());
+
+        // Get course
+        Courses course = Courses.getCourse(client.getLocalPlayer().getWorldLocation().getRegionID());
+        if (course == null
+                /* || !config.showLapCount() */
+                || Arrays.stream(course.getCourseEndWorldPoints()).noneMatch(wp -> wp.equals(client.getLocalPlayer().getWorldLocation())))
+        {
+            return;
+        }
+
+        track(course);
+        panel.update(tracker);
+    }
+
+    private void track(Courses course) {
+        tracker.addLap(client, xpTrackerService);
+        client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Lap count: " + tracker.getTotalLaps(), null);
+    }
 
 	@Provides
     AgiPetConfig provideConfig(ConfigManager configManager)
