@@ -1,13 +1,13 @@
-package com.example;
+package com.agipet;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class ExamplePluginTest
+public class AgiPetPluginTest
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(ExamplePlugin.class);
-		RuneLite.main(args);
+        ExternalPluginManager.loadBuiltin(AgiPetPlugin.class);
+        RuneLite.main(args);
 	}
 }
