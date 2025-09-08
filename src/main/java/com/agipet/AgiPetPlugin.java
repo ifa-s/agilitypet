@@ -124,7 +124,15 @@ public class AgiPetPlugin extends Plugin
             agilityLevel = client.getRealSkillLevel(Skill.AGILITY);
             agilityXp = client.getSkillExperience(Skill.AGILITY);
             tracker = new AgiPetTracker();
-            tracker.setStartXp(agilityXp);
+            int[] load = data.readData();
+            if (load[0] != -1) {
+                tracker.setStartXp(load[0]);
+            } else {
+                tracker.setStartXp(agilityXp);
+            }
+            if (load[1] != -1) {
+                tracker.setTotalLaps(load[1]);
+            }
             panel.update(tracker);
         }
 

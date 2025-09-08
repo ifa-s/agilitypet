@@ -3,9 +3,7 @@ package com.agipet;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 import static net.runelite.client.RuneLite.RUNELITE_DIR;
 class AgiPetFile {
@@ -56,5 +54,24 @@ class AgiPetFile {
         FileWriter f = new FileWriter(fn);
         f.append(sb);
         f.close();
+    }
+
+    public int[] readData() {
+        try {
+            FileReader f = new FileReader(this.getDir() + "\\pet.txt");
+            BufferedReader br = new BufferedReader(f);
+            String line;
+            line = br.readLine();
+            int xp = Integer.parseInt(line);
+            line = br.readLine();
+            int laps = Integer.parseInt(line);
+            line = br.readLine();
+            int gained = Integer.parseInt(line);
+            return new int[] {xp, laps, gained};
+        } catch (Exception e) {
+            return new int[] {-1, -1, -1};
+        }
+
+
     }
 }
