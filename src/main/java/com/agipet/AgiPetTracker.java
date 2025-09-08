@@ -17,9 +17,12 @@ class AgiPetTracker {
     @Setter
     private int startXp;
 
-    void addLap(Client client, XpTrackerService xpTrackerService) {
-        ++totalLaps;
+    void updateGained(Client client, XpTrackerService xpTrackerService) {
         final int currentXp = client.getSkillExperience(Skill.AGILITY);
         this.xpGained = currentXp - this.startXp;
+    }
+    void addLap(Client client, XpTrackerService xpTrackerService) {
+        ++totalLaps;
+        this.updateGained(client, xpTrackerService);
     }
 }

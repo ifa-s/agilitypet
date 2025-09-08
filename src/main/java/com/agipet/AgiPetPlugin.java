@@ -16,6 +16,7 @@ import net.runelite.api.events.StatChanged;
 import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.SessionOpen;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -26,6 +27,7 @@ import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Arrays;
 
 import static net.runelite.api.Skill.AGILITY;
@@ -68,16 +70,16 @@ public class AgiPetPlugin extends Plugin
 
     private AgiPetPanel panel;
     private NavigationButton navButton;
+
+    private boolean loggedin;
+    private AgiPetFile data;
 	@Override
 	protected void startUp() throws Exception
 	{
+        loggedin = false;
         // TODO Read write from file
+        data = new AgiPetFile(client);
         // README https://github.com/Mrnice98/BossingInfo/blob/master/src/main/java/com/killsperhour/FileReadWriter.java
-		agilityLevel = client.getRealSkillLevel(Skill.AGILITY);
-        agilityXp = client.getSkillExperience(Skill.AGILITY);
-        tracker = new AgiPetTracker();
-        tracker.setStartXp(agilityXp);
-
         // Add panel to window
         panel = injector.getInstance(AgiPetPanel.class);
         panel.init();
@@ -98,7 +100,7 @@ public class AgiPetPlugin extends Plugin
 	@Override
 	protected void shutDown() throws Exception
 	{
-        /* ; */
+        data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained());
 	}
 
 	/*@Subscribe
@@ -111,17 +113,25 @@ public class AgiPetPlugin extends Plugin
 	}*/
 
     @Subscribe
-    public void onStatChanged(StatChanged statChanged)
-    {
+    public void onStatChanged(StatChanged statChanged) throws IOException {
         if (statChanged.getSkill() != AGILITY)
         {
             return;
         }
 
-        agilityLevel = statChanged.getLevel();
+        if (!loggedin) {
+            loggedin = true;
+            agilityLevel = client.getRealSkillLevel(Skill.AGILITY);
+            agilityXp = client.getSkillExperience(Skill.AGILITY);
+            tracker = new AgiPetTracker();
+            tracker.setStartXp(agilityXp);
+            panel.update(tracker);
+        }
+
+
 
         // Determine how much EXP was actually gained
-        int agilityXp = statChanged.getXp();
+        agilityXp = statChanged.getXp();
         int skillGained = agilityXp - lastAgilityXp;
         lastAgilityXp = agilityXp;
 
@@ -133,16 +143,23 @@ public class AgiPetPlugin extends Plugin
                 /* || !config.showLapCount() */
                 || Arrays.stream(course.getCourseEndWorldPoints()).noneMatch(wp -> wp.equals(client.getLocalPlayer().getWorldLocation())))
         {
+            tracker.updateGained(client, xpTrackerService);
+            panel.update(tracker);
+            data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained());
             return;
         }
 
         track(course);
         panel.update(tracker);
+        data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained());
     }
 
     private void track(Courses course) {
         tracker.addLap(client, xpTrackerService);
         client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Lap count: " + tracker.getTotalLaps(), null);
+    }
+    private void track() {
+        tracker.updateGained(client, xpTrackerService);
     }
 
 	@Provides
@@ -150,4 +167,12 @@ public class AgiPetPlugin extends Plugin
 	{
 		return configManager.getConfig(AgiPetConfig.class);
 	}
+    @Subscribe
+    public void onSessionOpen(SessionOpen sessionOpen) {
+        if (!loggedin) {
+            loggedin = true;
+
+        }
+
+    }
 }
