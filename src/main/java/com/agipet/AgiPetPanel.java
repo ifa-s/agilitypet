@@ -1,19 +1,21 @@
 package com.agipet;
 
+import com.formdev.flatlaf.util.ScaledImageIcon;
 import com.google.inject.Inject;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+
+import java.awt.*;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import net.runelite.api.Client;
 import net.runelite.client.account.SessionManager;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.info.InfoPanel;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.util.ImageUtil;
 
 public class AgiPetPanel extends PluginPanel
 {
@@ -24,6 +26,7 @@ public class AgiPetPanel extends PluginPanel
     private static final ImageIcon PATREON_ICON;
     private static final ImageIcon WIKI_ICON;
 */
+    private static final ImageIcon MUSPAH_PET;
     private final JLabel loggedLabel = new JLabel();
     private JPanel actionsContainer;
 
@@ -49,53 +52,54 @@ public class AgiPetPanel extends PluginPanel
         WIKI_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "wiki_icon.png"));
     } */ // Static for images, TODO use for pet icons?
 
+    static
+    {
+        MUSPAH_PET = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "/Muspah.png"));
+    }
     private JLabel startXp;
     private JLabel gainedXp;
     private JLabel laps;
+    private JButton pet;
+    private ScaledImageIcon petImage;
     void init()
     {
         setLayout(new BorderLayout());
+        // Sets far background type
         setBackground(ColorScheme.DARK_GRAY_COLOR);
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
+
         JPanel infoPanel = new JPanel();
+        // Set text info panel background
         infoPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         infoPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         infoPanel.setLayout(new GridLayout(0, 1));
 
         final Font smallFont = FontManager.getRunescapeSmallFont();
 
+        // Set placeholder JLabels
         startXp = new JLabel("Start XP: 0");
         startXp.setFont(smallFont);
-
         gainedXp = new JLabel("Gained XP: 0");
         gainedXp.setFont(smallFont);
-
         laps = new JLabel("Laps: 0");
         laps.setFont(smallFont);
-
-        //revision.setText(htmlLabel("Oldschool revision: ", engineVer));
-
 
         infoPanel.add(startXp);
         infoPanel.add(gainedXp);
         infoPanel.add(laps);
-        //infoPanel.add(Box.createGlue());
-
-        /*
-        actionsContainer = new JPanel();
-        actionsContainer.setBorder(new EmptyBorder(10, 0, 0, 0));
-        actionsContainer.setLayout(new GridLayout(0, 1, 0, 10));
-
-        actionsContainer.add(buildLinkPanel(GITHUB_ICON, "Report an issue or", "make a suggestion", githubLink));
-        actionsContainer.add(buildLinkPanel(DISCORD_ICON, "Talk to us on our", "Discord server", discordInvite));
-        actionsContainer.add(buildLinkPanel(PATREON_ICON, "Become a patron to", "help support RuneLite", patreonLink));
-        actionsContainer.add(buildLinkPanel(WIKI_ICON, "Information about", "RuneLite and plugins", wikiLink));
-
-
-        add(actionsContainer, BorderLayout.CENTER);
-        */
         add(infoPanel, BorderLayout.NORTH);
+        infoPanel.add(Box.createGlue());
+
+        JPanel petPanel = new JPanel();
+        petPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        petPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        petPanel.setLayout(new GridLayout(0, 1));
+        petImage = new ScaledImageIcon(MUSPAH_PET, 100, 100);
+        pet = new JButton(petImage);
+        petPanel.add(pet);
+        add(petPanel, BorderLayout.CENTER);
+
         eventBus.register(this);
     }
 
