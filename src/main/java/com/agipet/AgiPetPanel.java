@@ -9,13 +9,19 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import net.runelite.api.Client;
+import net.runelite.api.ItemComposition;
+import net.runelite.api.SpritePixels;
+import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.SpriteID;
 import net.runelite.client.account.SessionManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.info.InfoPanel;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.util.AsyncBufferedImage;
 import net.runelite.client.util.ImageUtil;
+import net.runelite.client.game.ItemManager;
 
 public class AgiPetPanel extends PluginPanel
 {
@@ -42,6 +48,8 @@ public class AgiPetPanel extends PluginPanel
     @Inject
     private ScheduledExecutorService executor;
 
+    @Inject
+    private ItemManager itemManager;
 
    /* static
     {
@@ -61,6 +69,10 @@ public class AgiPetPanel extends PluginPanel
     private JLabel laps;
     private JButton pet;
     private ScaledImageIcon petImage;
+    private JButton itemSlotMelee;
+    private JButton itemSlotRanged;
+    private JButton itemSlotMage;
+    private JButton itemSlotHelmet;
     void init()
     {
         setLayout(new BorderLayout());
@@ -100,6 +112,37 @@ public class AgiPetPanel extends PluginPanel
         petPanel.add(pet);
         add(petPanel, BorderLayout.CENTER);
 
+        JPanel itemPanel = new JPanel();
+        itemPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        itemPanel.setLayout(new GridLayout(0, 4));
+        int itemId;
+        AsyncBufferedImage itemImg;
+        // Melee Weapon Slot
+        itemId = ItemID.BRONZE_2H_SWORD;
+        itemImg = itemManager.getImage(itemId, 1, false);
+        itemSlotMelee = new JButton();
+        itemImg.addTo(itemSlotMelee);
+        itemPanel.add(itemSlotMelee);
+        // Ranged Weapon Slot
+        itemId = ItemID.CROSSBOW;
+        itemImg = itemManager.getImage(itemId, 1, false);
+        itemSlotRanged = new JButton();
+        itemImg.addTo(itemSlotRanged);
+        itemPanel.add(itemSlotRanged);
+        // Mage Weapon Slot
+        itemId = ItemID.IBANSTAFF;
+        itemImg = itemManager.getImage(itemId, 1, false);
+        itemSlotMage = new JButton();
+        itemImg.addTo(itemSlotMage);
+        itemPanel.add(itemSlotMage);
+        // Helmet Slot
+        itemId = ItemID.NEITIZNOT_FACEGUARD;
+        itemImg = itemManager.getImage(itemId, 1, false);
+        itemSlotHelmet = new JButton();
+        itemImg.addTo(itemSlotHelmet);
+        itemPanel.add(itemSlotHelmet);
+        // Add items to panel
+        add(itemPanel,BorderLayout.SOUTH);
         eventBus.register(this);
     }
 
