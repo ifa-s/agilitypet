@@ -31,6 +31,7 @@ class AgiPetFile {
         File file = new File(new File(this.getDir()), String.valueOf(client.getAccountHash()));
 
         if (!file.exists()) {
+            file.getParentFile().mkdirs();
             boolean created = file.createNewFile();
         }
     }
