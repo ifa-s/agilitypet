@@ -9,10 +9,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
-import net.runelite.api.GameState;
 import net.runelite.api.Skill;
-import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.StatChanged;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -58,6 +57,9 @@ public class AgiPetPlugin extends Plugin
 
     private int lastAgilityXp;
 
+    @Getter
+    private AgiPetPlayer player;
+
     @Inject
     private XpTrackerService xpTrackerService;
 
@@ -81,8 +83,9 @@ public class AgiPetPlugin extends Plugin
         data = new AgiPetFile(client);
         // README https://github.com/Mrnice98/BossingInfo/blob/master/src/main/java/com/killsperhour/FileReadWriter.java
         // Add panel to window
+        player = createPlayer();
         panel = injector.getInstance(AgiPetPanel.class);
-        panel.init();
+        panel.init(player);
 
         final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.jpg");
 
@@ -98,19 +101,9 @@ public class AgiPetPlugin extends Plugin
 	}
 
 	@Override
-	protected void shutDown() throws Exception
-	{
-        data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained());
-	}
-
-	/*@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
-	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
-		{
-			//client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
-		}
-	}*/
+	protected void shutDown() throws Exception {
+        data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained(), player);
+    }
 
     @Subscribe
     public void onStatChanged(StatChanged statChanged) throws IOException {
@@ -153,13 +146,13 @@ public class AgiPetPlugin extends Plugin
         {
             tracker.updateGained(client, xpTrackerService);
             panel.update(tracker);
-            data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained());
+            data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained(), player);
             return;
         }
 
         track(course);
         panel.update(tracker);
-        data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained());
+        data.update(tracker.getStartXp(), tracker.getTotalLaps(), tracker.getXpGained(), player);
     }
 
     private void track(Courses course) {
@@ -170,6 +163,16 @@ public class AgiPetPlugin extends Plugin
         tracker.updateGained(client, xpTrackerService);
     }
 
+    private AgiPetPlayer createPlayer() {
+        AgiPetItem meWep = new AgiPetItem(0, ItemID.SCYTHE_OF_VITUR, "Scythe of Vitur", 1, 0, 0, 1, 0);
+        AgiPetItem maWep = new AgiPetItem(1,ItemID.TUMEKENS_SHADOW, "Tumeken's Shadow", 0, 0,1, 0, 1);
+        AgiPetItem raWep = new AgiPetItem(2,ItemID.TWISTED_BOW, "Twisted Bow", 0, 1, 0, 1, 0);
+        AgiPetItem helm = new AgiPetItem(3,ItemID.TORVA_HELM, "Torva Helm", 1, 0, 0, 1, 0);
+        AgiPetPlayer player = new AgiPetPlayer();
+        AgiPetItem[] testeq = {meWep, maWep, raWep, helm};
+        player.setEquipment(testeq);
+        return player;
+    }
 	@Provides
     AgiPetConfig provideConfig(ConfigManager configManager)
 	{

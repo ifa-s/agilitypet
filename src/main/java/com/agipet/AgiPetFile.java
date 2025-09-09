@@ -1,6 +1,5 @@
 package com.agipet;
 
-import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 
 import java.io.*;
@@ -36,18 +35,26 @@ class AgiPetFile {
         }
     }
 
-    public void update(int start, int laps, int gained) throws IOException {
+    public void update(int start, int laps, int gained, AgiPetPlayer player) throws IOException {
         this.createDirectory();
         this.createFile();
-        this.writeData(start,laps,gained);
+        this.writeData(start,laps,gained,player);
     }
-    private void writeData(int start, int laps, int gained) throws IOException {
+    private void writeData(int start, int laps, int gained, AgiPetPlayer player) throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append(start);
         sb.append("\n");
         sb.append(laps);
         sb.append("\n");
         sb.append(gained);
+        sb.append("\n");
+        sb.append(player.getEquipment()[0]);
+        sb.append("\n");
+        sb.append(player.getEquipment()[1]);
+        sb.append("\n");
+        sb.append(player.getEquipment()[2]);
+        sb.append("\n");
+        sb.append(player.getEquipment()[3]);
         String fn = this.getDir() + "\\pet.txt";
         FileWriter file = new FileWriter(fn, false);
         file.close();
