@@ -4,6 +4,8 @@ import com.formdev.flatlaf.util.ScaledImageIcon;
 import com.google.inject.Inject;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -45,18 +47,12 @@ public class AgiPetPanel extends PluginPanel
     @Inject
     private ItemManager itemManager;
 
-   /* static
-    {
-        ARROW_RIGHT_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "/util/arrow_right.png"));
-        GITHUB_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "github_icon.png"));
-        DISCORD_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "discord_icon.png"));
-        PATREON_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "patreon_icon.png"));
-        WIKI_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "wiki_icon.png"));
-    } */ // Static for images, TODO use for pet icons?
-
     private JLabel startXp;
     private JLabel gainedXp;
     private JLabel laps;
+    private JLabel activeStyle;
+    private JLabel enemyHealth;
+    private int combatStyle;
     private JButton pet;
     private ScaledImageIcon petImage;
     private JButton itemSlotMelee;
@@ -88,10 +84,16 @@ public class AgiPetPanel extends PluginPanel
         gainedXp.setFont(smallFont);
         laps = new JLabel("Laps: 0");
         laps.setFont(smallFont);
+        activeStyle = new JLabel("Combat Style: Melee");
+        activeStyle.setFont(smallFont);
+        enemyHealth = new JLabel("Enemy Health: 0");
+        enemyHealth.setFont(smallFont);
 
         infoPanel.add(startXp);
         infoPanel.add(gainedXp);
         infoPanel.add(laps);
+        infoPanel.add(activeStyle);
+        infoPanel.add(enemyHealth);
         add(infoPanel, BorderLayout.NORTH);
         infoPanel.add(Box.createGlue());
 
@@ -109,16 +111,37 @@ public class AgiPetPanel extends PluginPanel
         itemPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         itemPanel.setLayout(new GridLayout(0, 4));
         itemSlotMelee = new JButton();
+        itemSlotMelee.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.setCombatStyle(0);
+                update(player);
+            }
+        });
         player.getImage(itemManager,0).addTo(itemSlotMelee);
         itemPanel.add(itemSlotMelee);
-        // Mage Weapon Slot
-        itemSlotMage = new JButton();
-        player.getImage(itemManager,1).addTo(itemSlotMage);
-        itemPanel.add(itemSlotMage);
         // Ranged Weapon Slot
         itemSlotRanged = new JButton();
         player.getImage(itemManager,2).addTo(itemSlotRanged);
         itemPanel.add(itemSlotRanged);
+        itemSlotRanged.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.setCombatStyle(1);
+                update(player);
+            }
+        });
+        // Mage Weapon Slot
+        itemSlotMage = new JButton();
+        itemSlotMage.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                player.setCombatStyle(2);
+                update(player);
+            }
+        });
+        player.getImage(itemManager,1).addTo(itemSlotMage);
+        itemPanel.add(itemSlotMage);
         // Helmet Slot
         itemSlotHelmet = new JButton();
         player.getImage(itemManager,3).addTo(itemSlotHelmet);
@@ -138,6 +161,23 @@ public class AgiPetPanel extends PluginPanel
         startXp.setText("Start XP: " + t.getStartXp());
         gainedXp.setText("Gained XP: " + t.getXpGained());
     }
+    public void update(AgiPetEnemy e) {
+        enemyHealth.setText(e.getName() + " Health: " + e.getHealth());
+    }
+
+    public void update(AgiPetPlayer p) {
+        String style;
+        int c = p.getCombatStyle();
+        if (c == 0) {
+            style = "Melee";
+        } else if (c == 1) {
+            style = "Ranged";
+        } else {
+            style = "Mage";
+        }
+        activeStyle.setText("Active Style: " + style);
+    }
+
     private static String htmlLabel(String key, String value)
     {
         return "<html><body style = 'color:#a5a5a5'>" + key + "<span style = 'color:white'>" + value + "</span></body></html>";

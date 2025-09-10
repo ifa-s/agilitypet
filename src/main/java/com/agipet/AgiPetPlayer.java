@@ -12,6 +12,9 @@ public class AgiPetPlayer {
     @Getter
     @Setter
     int health;
+    @Getter
+    @Setter
+    int combatStyle;
 
     public AsyncBufferedImage getImage(ItemManager itemManager, int slot) {
         return itemManager.getImage(equipment[slot].getItemID(),1,false);

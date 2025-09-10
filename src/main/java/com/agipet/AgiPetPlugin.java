@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.Skill;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.StatChanged;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.client.Notifier;
@@ -24,6 +25,7 @@ import net.runelite.client.plugins.xptracker.XpTrackerService;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -43,6 +45,8 @@ public class AgiPetPlugin extends Plugin
 	@Inject
 	private Client client;
 
+    @Inject
+    private GameTick gameTick;
 	@Inject
 	private AgiPetConfig config;
 
@@ -130,8 +134,6 @@ public class AgiPetPlugin extends Plugin
             panel.update(tracker);
         }
 
-
-
         // Determine how much EXP was actually gained
         agilityXp = statChanged.getXp();
         int skillGained = agilityXp - lastAgilityXp;
@@ -158,7 +160,7 @@ public class AgiPetPlugin extends Plugin
 
     private void track(Courses course) {
         tracker.addLap(client, xpTrackerService);
-        client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Lap count: " + tracker.getTotalLaps(), null);
+        //client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Lap count: " + tracker.getTotalLaps(), null);
     }
     private void track() {
         tracker.updateGained(client, xpTrackerService);
@@ -190,6 +192,11 @@ public class AgiPetPlugin extends Plugin
             loggedin = true;
 
         }
+    }
 
+    @Subscribe
+    public void onGameTick(GameTick gameTick) {
+        // Implement combat
+        panel.update(enemy);
     }
 }
