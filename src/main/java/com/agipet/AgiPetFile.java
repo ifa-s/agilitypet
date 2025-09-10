@@ -24,7 +24,7 @@ class AgiPetFile {
         }
     }
     private String getDir() {
-        return RUNELITE_DIR + "\\AgilityPet\\" + client.getAccountHash();
+        return RUNELITE_DIR + "/AgilityPet/" + client.getAccountHash();
     }
     private void createFile() throws IOException {
         String filename = "pet.txt";
@@ -56,7 +56,7 @@ class AgiPetFile {
         sb.append(player.getEquipment()[2]);
         sb.append("\n");
         sb.append(player.getEquipment()[3]);
-        String fn = this.getDir() + "\\pet.txt";
+        String fn = this.getDir() + "/pet.txt";
         FileWriter file = new FileWriter(fn, false);
         file.close();
         FileWriter f = new FileWriter(fn);
@@ -66,7 +66,7 @@ class AgiPetFile {
 
     public int[] readData() {
         try {
-            FileReader f = new FileReader(this.getDir() + "\\pet.txt");
+            FileReader f = new FileReader(this.getDir() + "/pet.txt");
             BufferedReader br = new BufferedReader(f);
             String line;
             line = br.readLine();
