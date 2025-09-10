@@ -72,7 +72,7 @@ public class AgiPetPlugin extends Plugin
 
     private AgiPetPanel panel;
     private NavigationButton navButton;
-
+    private AgiPetEnemy enemy;
     private boolean loggedin;
     private AgiPetFile data;
 	@Override
@@ -85,7 +85,8 @@ public class AgiPetPlugin extends Plugin
         // Add panel to window
         player = createPlayer();
         panel = injector.getInstance(AgiPetPanel.class);
-        panel.init(player);
+        enemy = getNewEnemy();
+        panel.init(player, enemy);
 
         final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.jpg");
 
@@ -173,6 +174,11 @@ public class AgiPetPlugin extends Plugin
         player.setEquipment(testeq);
         return player;
     }
+
+    private AgiPetEnemy getNewEnemy() {
+        return new AgiPetEnemy(Enemy.SOL, 1);
+    }
+
 	@Provides
     AgiPetConfig provideConfig(ConfigManager configManager)
 	{

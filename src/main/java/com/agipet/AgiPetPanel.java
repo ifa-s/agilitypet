@@ -27,7 +27,6 @@ public class AgiPetPanel extends PluginPanel
     private static final ImageIcon PATREON_ICON;
     private static final ImageIcon WIKI_ICON;
 */
-    private static final ImageIcon MUSPAH_PET;
     private final JLabel loggedLabel = new JLabel();
     private JPanel actionsContainer;
 
@@ -55,10 +54,6 @@ public class AgiPetPanel extends PluginPanel
         WIKI_ICON = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "wiki_icon.png"));
     } */ // Static for images, TODO use for pet icons?
 
-    static
-    {
-        MUSPAH_PET = new ImageIcon(ImageUtil.loadImageResource(InfoPanel.class, "/Muspah.png"));
-    }
     private JLabel startXp;
     private JLabel gainedXp;
     private JLabel laps;
@@ -69,7 +64,7 @@ public class AgiPetPanel extends PluginPanel
     private JButton itemSlotMage;
     private JButton itemSlotHelmet;
     private AgiPetPlayer player;
-    void init(AgiPetPlayer p)
+    void init(AgiPetPlayer p, AgiPetEnemy e)
     {
         this.player = p;
         setLayout(new BorderLayout());
@@ -104,7 +99,7 @@ public class AgiPetPanel extends PluginPanel
         petPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         petPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         petPanel.setLayout(new GridLayout(0, 1));
-        petImage = new ScaledImageIcon(MUSPAH_PET, 100, 100);
+        petImage = new ScaledImageIcon(new ImageIcon(e.getSprite()), 100, 100);
         pet = new JButton(petImage);
         petPanel.add(pet);
         add(petPanel, BorderLayout.CENTER);
