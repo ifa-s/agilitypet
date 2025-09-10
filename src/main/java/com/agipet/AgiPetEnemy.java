@@ -32,4 +32,18 @@ public class AgiPetEnemy {
     public BufferedImage getSprite() {
         return ImageUtil.loadImageResource(getClass(), this.spriteName);
     }
+
+    public int getHit(int attack, int style) {
+        int def = 0;
+        if (style == 0) {
+            def = this.defense;
+        } else if (style == 1) {
+            def = this.rDefense;
+        } else if (style == 2) {
+            def = this.mDefense;
+        }
+        int diff = (int) Math.ceil(attack / (def * 0.05));
+        this.health -= diff;
+        return diff;
+    }
 }

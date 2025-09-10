@@ -167,10 +167,10 @@ public class AgiPetPlugin extends Plugin
     }
 
     private AgiPetPlayer createPlayer() {
-        AgiPetItem meWep = new AgiPetItem(0, ItemID.SCYTHE_OF_VITUR, "Scythe of Vitur", 1, 0, 0, 1, 0);
-        AgiPetItem maWep = new AgiPetItem(1,ItemID.TUMEKENS_SHADOW, "Tumeken's Shadow", 0, 0,1, 0, 1);
-        AgiPetItem raWep = new AgiPetItem(2,ItemID.TWISTED_BOW, "Twisted Bow", 0, 1, 0, 1, 0);
-        AgiPetItem helm = new AgiPetItem(3,ItemID.TORVA_HELM, "Torva Helm", 1, 0, 0, 1, 0);
+        AgiPetItem meWep = new AgiPetItem(0, ItemID.SCYTHE_OF_VITUR, "Scythe of Vitur", 75, 0, 0, 1, 0);
+        AgiPetItem maWep = new AgiPetItem(1,ItemID.TUMEKENS_SHADOW, "Tumeken's Shadow", 0, 0,75, 0, 1);
+        AgiPetItem raWep = new AgiPetItem(2,ItemID.TWISTED_BOW, "Twisted Bow", 0, 75, 0, 1, 0);
+        AgiPetItem helm = new AgiPetItem(3,ItemID.TORVA_HELM, "Torva Helm", 10, 0, 0, 1, 0);
         AgiPetPlayer player = new AgiPetPlayer();
         AgiPetItem[] testeq = {meWep, maWep, raWep, helm};
         player.setEquipment(testeq);
@@ -196,7 +196,8 @@ public class AgiPetPlugin extends Plugin
 
     @Subscribe
     public void onGameTick(GameTick gameTick) {
-        // Implement combat
+        // TODO Implement combat
+        player.combat(enemy);
         panel.update(enemy);
     }
 }
