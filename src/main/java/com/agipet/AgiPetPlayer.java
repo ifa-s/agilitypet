@@ -20,8 +20,9 @@ public class AgiPetPlayer {
         return itemManager.getImage(equipment[slot].getItemID(),1,false);
     }
 
-    public void combat(AgiPetEnemy e) {
+    public int combat(AgiPetEnemy e) {
         int hit = e.getHit(this.getAttack(this.combatStyle), this.combatStyle);
+        return hit;
     }
 
     private int getAttack(int i) {

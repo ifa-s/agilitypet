@@ -42,8 +42,15 @@ public class AgiPetEnemy {
         } else if (style == 2) {
             def = this.mDefense;
         }
-        int diff = (int) Math.ceil(attack / (def * 0.05));
+        int diff = (int) Math.ceil(attack / (def / 0.50)); // Usually 0.05
         this.health -= diff;
+        if (this.health <= 0) {
+            diff = -1;
+        }
         return diff;
+    }
+
+    private void die() {
+
     }
 }

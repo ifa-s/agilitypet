@@ -197,7 +197,10 @@ public class AgiPetPlugin extends Plugin
     @Subscribe
     public void onGameTick(GameTick gameTick) {
         // TODO Implement combat
-        player.combat(enemy);
+        int hit = player.combat(enemy);
+        if (hit == -1) {
+            enemy = getNewEnemy();
+        }
         panel.update(enemy);
     }
 }
